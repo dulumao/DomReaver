@@ -81,6 +81,10 @@ class Spider {
 			}
 		});	
 
+		$this->links = is_array($this->links) ? array_unique($this->links) : [$this->links];
+        $this->links = array_filter($this->links);
+        $this->links = array_values($this->links);
+
 		if(!file_exists('index.json')) {
 			exec('touch index.json');
 		}
@@ -93,43 +97,27 @@ class Spider {
 	public function follow()
 	{
 
-		$client = new Client();
+		$client = new Client($this->base);
 
-		foreach($this->links as $uri) {
-			$requests = function ($total) {
-			    for ($i = 0; $i < $total; $i++) {
-			        yield new Request('GET', $uri);
-			    }
-			};
-		}
-
-		$pool = new Pool($client, $requests(count($this->links)), [
-		    'concurrency' => 5,
-		    'fulfilled' => function ($response, $index) {
-		        // this is delivered each successful response
-		        echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$this->url.PHP_EOL;
+		foreach($this->links as $link) {
+			$promises[] = $client->getAsync($link)->then(function($response) use($link) {
+				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$link.PHP_EOL;
 
 				$content = $response->getBody()->getContents();	
 
 				$this->crawl($content);
-		    },
-		    'rejected' => function ($reason, $index) {
-		        // this is delivered each failed request
-		    },
-		]);
+			});
+		}
 
-		// Initiate the transfers and create a promise
-		$promise = $pool->promise();
+		$results = Promise\settle($promises)->wait();
 
-		// Force the pool of requests to complete.
-		$promise->wait();
 
 	}
 
 	public function run()
 	{
 		$this->fetch();
-		$this->follow();	
+		$this->follow();
 	}
 
 }
