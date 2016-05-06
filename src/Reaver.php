@@ -16,7 +16,12 @@ class Spider {
 
 	public function __construct()
 	{
-		$this->url = 'http://www.mianm.com';
+		$this->url = 'http://www.twitter.com';
+	}
+
+	public function __destruct()
+	{
+		var_dump($this->links);
 	}
 
 	public function crawl()
@@ -28,8 +33,17 @@ class Spider {
 			$crawler = new Crawler($content, $this->url);
 
 			$title = $crawler->filterXpath('//title')->text();
-			$links = $crawler->filter('a')->each(function(Crawler $node, $i) {
+			$links = $crawler->filterXpath('//a')->each(function(Crawler $node, $i) {
 				echo $node->attr('href') . PHP_EOL;
+
+				$text = trim($node->text());
+				$href = url_to_absolute($this->url, $node->attr('href'));
+				$href = rtrim($href, '#');
+				$href = rtrim($href, '/');
+
+				$this->links[] = [
+					$text => $href
+				];
 			});
 
 		});
