@@ -15,6 +15,7 @@ class Spider {
 	public $url;
 	public $links;
 	public $base;
+	public $site;
 
 	public function __construct()
 	{
@@ -23,7 +24,7 @@ class Spider {
 
 	public function __destruct()
 	{
-	
+		//var_dump($this->site);
 	}
 
 	public function setUrl($url)
@@ -51,7 +52,21 @@ class Spider {
 	public function crawl($html)
 	{
 		$crawler = new Crawler($html, $this->url);
-		$title = $crawler->filterXpath('//title')->text();
+		$title = count($crawler->filterXPath('//title')) != 0 ? $crawler->filterXPath('//title')->text() : $this->url;
+
+        $metas = $crawler->filterXPath('//meta[@name="description"]');
+
+        $meta = count($metas) !== 0 ? $crawler->filterXPath('//meta[@name="description"]')->attr('content') : '';
+        $meta = !empty($meta) ? $meta : truncate($crawler->filterXPath('//body')->text());
+
+        $this->site = [
+        	'url' => $this->url,
+        	'base' => $this->base, 
+        	'title' => $title, 
+        	'description' => $description, 
+        	'html' => $crawler->html()
+        ];
+
 		$links = $crawler->filterXpath('//a')->each(function(Crawler $node, $i) {
 			$href = url_to_absolute($this->url, $node->attr('href'));
 			$href = rtrim($href, '#');
