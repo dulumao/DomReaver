@@ -25,14 +25,11 @@ class Spider {
 
 	public function __destruct()
 	{
+		echo '['.Carbon::now().'] Finalizing Crawl...'.PHP_EOL;
+		echo '['.Carbon::now().'] Stats:'.PHP_EOL;
+		echo '------------------------------------------'.PHP_EOL;
 		$this->site = json_encode($this->site);
         $this->site = indent($this->site);
-
-        if(!file_exists('index.json')) {
-			exec('touch index.json');
-		}
-
-		file_put_contents('index.json', $this->site, FILE_APPEND | LOCK_EX);
 	}
 
 	public function setUrl($url)
