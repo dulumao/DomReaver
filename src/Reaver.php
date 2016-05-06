@@ -2,10 +2,12 @@
 
 namespace Reaver;
 
-
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Request;
 use Symfony\Component\DomCrawler\Crawler;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
 
 class Spider {
 
@@ -22,17 +24,16 @@ class Spider {
 
 		$client = new Client(['base_uri' => $this->url]);
 
-		$request = new Request('GET', $this->url);
+		$promise = $client->getAsync($this->url)->then(function($response) {
+			$content = $response->getBody()->getContents();	
+			$crawler = new Crawler($content);
 
-		$promise = $client->sendAsync($request)->then(function ($response) {
-		    echo 'I completed! ' . $response->getBody();
+			$title = $crawler->filterXpath('//title')->text();
+			var_dump($title);
+
 		});
+
 		$promise->wait();
-
-		/*
-		$client = new Client();
-
-		$crawler = $client->request('GET', 'http://www.symfony.com/blog/');*/
 	}
 }
 
