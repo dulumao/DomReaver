@@ -19,6 +19,10 @@ class Spider {
 
 		$crawler = new Crawler;
 
+		$crawler->registerNamespace('m', $this->url);
+
+		var_dump($crawler);
+
 		echo "Hello Crawler";
 	}
 }

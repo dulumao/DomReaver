@@ -4,8 +4,8 @@ namespace Reaver;
 
 class Request 
 {
-	public function get($url, )
+	public function get($url)
 	{
-
+		
 	}
 }
