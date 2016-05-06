@@ -1,0 +1,23 @@
+{
+    "name": "jmenicucci/dom-reaver",
+    "description": "PHP Web crawler and scraper designed to be blazing fast and scalable.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jeremy Menicucci",
+            "email": "menicucci_207@yahoo.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "symfony/dom-crawler": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Reaver\\": "src/"
+        },
+        "files": [
+            "src/Library/functions.php"
+        ]
+    }
+}
