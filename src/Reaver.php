@@ -45,13 +45,13 @@ class Spider {
 
 			$content = $response->getBody()->getContents();	
 
-			$this->crawl($content);
+			$this->crawl($content, $this->url, $this->base);
 		});
 
 		$promise->wait();
 	}	
 
-	public function crawl($html)
+	public function crawl($html, $url, $base)
 	{
 		$crawler = new Crawler($html, $this->url);
 		$title = count($crawler->filterXPath('//title')) != 0 ? $crawler->filterXPath('//title')->text() : $this->url;
@@ -62,8 +62,8 @@ class Spider {
         $meta = !empty($meta) ? $meta : truncate($crawler->filterXPath('//body')->text());
 
         $this->site = [
-        	'url' => $this->url,
-        	'base' => $this->base, 
+        	'url' => $url,
+        	'base' => $base, 
         	'title' => $title, 
         	'description' => $meta, 
         	'html' => $crawler->html()
@@ -96,22 +96,17 @@ class Spider {
 
 	public function follow()
 	{
-
 		$client = new Client($this->base);
 
 		foreach($this->links as $link) {
+			$this->url = $link;
 			$promises[] = $client->getAsync($link)->then(function($response) use($link) {
 				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$link.PHP_EOL;
-
 				$content = $response->getBody()->getContents();	
-
-				$this->crawl($content);
+				$this->crawl($content, $link, $this->base);
 			});
 		}
-
 		$results = Promise\settle($promises)->wait();
-
-
 	}
 
 	public function run()
