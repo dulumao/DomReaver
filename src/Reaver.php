@@ -26,7 +26,14 @@ class Spider {
 
 	public function __destruct()
 	{
+		$this->site = json_encode($this->site);
+        $this->site = indent($this->site);
 
+        if(!file_exists('index.json')) {
+			exec('touch index.json');
+		}
+
+		file_put_contents('index.json', $this->site, FILE_APPEND | LOCK_EX);
 	}
 
 	public function setUrl($url)
@@ -61,16 +68,13 @@ class Spider {
         $meta = count($metas) !== 0 ? $crawler->filterXPath('//meta[@name="description"]')->attr('content') : '';
         $meta = !empty($meta) ? $meta : truncate($crawler->filterXPath('//body')->text());
 
-        $this->site = [
+        $this->site[] = [
         	'url' => $url,
         	'base' => $base, 
         	'title' => $title, 
         	'description' => $meta, 
-        	'html' => $crawler->html()
+        	'html' => preg_replace('/(\s)+/', ' ', strip_tags($crawler->html()))
         ];
-
-        $this->site = json_encode($this->site);
-        $this->site = indent($this->site);
 
 		$links = $crawler->filterXpath('//a')->each(function(Crawler $node, $i) {
 			$href = url_to_absolute($this->url, $node->attr('href'));
@@ -85,12 +89,6 @@ class Spider {
         $this->links = array_filter($this->links);
         $this->links = array_values($this->links);
 
-		/*if(!file_exists('index.json')) {
-			exec('touch index.json');
-		}
-
-		file_put_contents('index.json', $this->site, FILE_APPEND | LOCK_EX);
-*/
 		$this->followed[] = $this->url;
 	}
 
