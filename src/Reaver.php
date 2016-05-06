@@ -3,6 +3,7 @@
 namespace Reaver;
 
 use Carbon\Carbon;
+use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Request;
@@ -26,11 +27,6 @@ class Spider {
 	public function __destruct()
 	{
 
-		if(!file_exists('index.json')) {
-			exec('touch index.json');
-		}
-
-		file_put_contents('index.json', $this->site);
 	}
 
 	public function setUrl($url)
@@ -85,22 +81,55 @@ class Spider {
 			}
 		});	
 
+		if(!file_exists('index.json')) {
+			exec('touch index.json');
+		}
+
+		file_put_contents('index.json', $this->site, FILE_APPEND | LOCK_EX);
+
 		$this->followed[] = $this->url;
 	}
 
 	public function follow()
 	{
-		foreach($this->links as $a) {
-			if(in_array($a, $this->followed)) continue;
-			$this->setUrl($a);
-			$this->fetch();
+
+		$client = new Client();
+
+		foreach($this->links as $uri) {
+			$requests = function ($total) {
+			    for ($i = 0; $i < $total; $i++) {
+			        yield new Request('GET', $uri);
+			    }
+			};
 		}
+
+		$pool = new Pool($client, $requests(count($this->links)), [
+		    'concurrency' => 5,
+		    'fulfilled' => function ($response, $index) {
+		        // this is delivered each successful response
+		        echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$this->url.PHP_EOL;
+
+				$content = $response->getBody()->getContents();	
+
+				$this->crawl($content);
+		    },
+		    'rejected' => function ($reason, $index) {
+		        // this is delivered each failed request
+		    },
+		]);
+
+		// Initiate the transfers and create a promise
+		$promise = $pool->promise();
+
+		// Force the pool of requests to complete.
+		$promise->wait();
+
 	}
 
 	public function run()
 	{
 		$this->fetch();
-		$this->follow();
+		$this->follow();	
 	}
 
 }
