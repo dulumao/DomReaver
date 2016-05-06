@@ -85,12 +85,12 @@ class Spider {
         $this->links = array_filter($this->links);
         $this->links = array_values($this->links);
 
-		if(!file_exists('index.json')) {
+		/*if(!file_exists('index.json')) {
 			exec('touch index.json');
 		}
 
 		file_put_contents('index.json', $this->site, FILE_APPEND | LOCK_EX);
-
+*/
 		$this->followed[] = $this->url;
 	}
 
@@ -100,13 +100,18 @@ class Spider {
 
 		foreach($this->links as $link) {
 			$this->url = $link;
-			$promises[] = $client->getAsync($link)->then(function($response) use($link) {
+			$promises[] = $client->getAsync($link)->then(function($response) use ($link) {
 				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$link.PHP_EOL;
 				$content = $response->getBody()->getContents();	
 				$this->crawl($content, $link, $this->base);
 			});
 		}
 		$results = Promise\settle($promises)->wait();
+	}
+
+	public function followExternal()
+	{
+		//
 	}
 
 	public function run()
