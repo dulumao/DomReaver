@@ -16,6 +16,7 @@ class Spider {
 	public $links;
 	public $base;
 	public $site;
+	public $followed;
 
 	public function __construct()
 	{
@@ -24,7 +25,12 @@ class Spider {
 
 	public function __destruct()
 	{
-		//var_dump($this->site);
+
+		if(!file_exists('index.json')) {
+			exec('touch index.json');
+		}
+
+		file_put_contents('index.json', $this->site);
 	}
 
 	public function setUrl($url)
@@ -63,21 +69,38 @@ class Spider {
         	'url' => $this->url,
         	'base' => $this->base, 
         	'title' => $title, 
-        	'description' => $description, 
+        	'description' => $meta, 
         	'html' => $crawler->html()
         ];
 
+        $this->site = json_encode($this->site);
+        $this->site = indent($this->site);
+
 		$links = $crawler->filterXpath('//a')->each(function(Crawler $node, $i) {
 			$href = url_to_absolute($this->url, $node->attr('href'));
-			$href = rtrim($href, '#');
-			$href = rtrim($href, '/');
-			$this->links[] = $href;
+			if(checkUrl($href) && !checkImage($href) && !is_null($href)) {
+				$href = rtrim($href, '#');
+				$href = rtrim($href, '/');
+				$this->links[] = $href;
+			}
 		});	
+
+		$this->followed[] = $this->url;
+	}
+
+	public function follow()
+	{
+		foreach($this->links as $a) {
+			if(in_array($a, $this->followed)) continue;
+			$this->setUrl($a);
+			$this->fetch();
+		}
 	}
 
 	public function run()
 	{
 		$this->fetch();
+		$this->follow();
 	}
 
 }
