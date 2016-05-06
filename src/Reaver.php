@@ -20,7 +20,7 @@ class Spider {
 	public function crawl()
 	{
 
-		$client = new Client();
+		$client = new Client(['base_uri' => $this->url]);
 
 		$request = new Request('GET', $this->url);
 
