@@ -17,7 +17,6 @@ class Spider {
 	public $links;
 	public $base;
 	public $site;
-	public $followed;
 
 	public function __construct()
 	{
@@ -88,8 +87,6 @@ class Spider {
 		$this->links = is_array($this->links) ? array_unique($this->links) : [$this->links];
         $this->links = array_filter($this->links);
         $this->links = array_values($this->links);
-
-		$this->followed[] = $this->url;
 	}
 
 	public function follow()
