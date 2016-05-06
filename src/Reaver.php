@@ -21,15 +21,16 @@ class Spider {
 
 	public function crawl()
 	{
-
 		$client = new Client(['base_uri' => $this->url]);
 
 		$promise = $client->getAsync($this->url)->then(function($response) {
 			$content = $response->getBody()->getContents();	
-			$crawler = new Crawler($content);
+			$crawler = new Crawler($content, $this->url);
 
 			$title = $crawler->filterXpath('//title')->text();
-			var_dump($title);
+			$links = $crawler->filter('a')->each(function(Crawler $node, $i) {
+				echo $node->attr('href') . PHP_EOL;
+			});
 
 		});
 
