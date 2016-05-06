@@ -2,6 +2,9 @@
 
 namespace Reaver;
 
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Spider {
@@ -17,13 +20,19 @@ class Spider {
 	public function crawl()
 	{
 
-		$crawler = new Crawler;
+		$client = new Client();
 
-		$crawler->registerNamespace('m', $this->url);
+		$request = new Request('GET', $this->url);
 
-		var_dump($crawler);
+		$promise = $client->sendAsync($request)->then(function ($response) {
+		    echo 'I completed! ' . $response->getBody();
+		});
+		$promise->wait();
 
-		echo "Hello Crawler";
+		/*
+		$client = new Client();
+
+		$crawler = $client->request('GET', 'http://www.symfony.com/blog/');*/
 	}
 }
 
