@@ -4,7 +4,13 @@
 require __DIR__.'/vendor/autoload.php';
 
 use \Reaver\Spider;
+use \Dotenv\Dotenv;
+
+$dotenv = new Dotenv(__DIR__);
+$dotenv->load();
 
 $crawler = new Spider;
 
-$crawler->crawl();
+$crawler->setUrl($argv[1]);
+
+$crawler->run();
