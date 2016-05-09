@@ -107,13 +107,14 @@ class Spider {
 
 	public function followExternal()
 	{
-		//
+		$this->follow();
 	}
 
 	public function run()
 	{
 		$this->fetch();
 		$this->follow();
+		$this->followExternal();
 	}
 
 }
