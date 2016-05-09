@@ -17,6 +17,7 @@ class Spider {
 	public $links;
 	public $base;
 	public $site;
+	public $followed;
 
 	public function __construct()
 	{
@@ -50,6 +51,7 @@ class Spider {
 			$content = $response->getBody()->getContents();	
 
 			$this->crawl($content, $this->url, $this->base);
+			$this->followed[] = $this->url;
 		});
 
 		$promise->wait();
@@ -92,11 +94,12 @@ class Spider {
 		$client = new Client();
 
 		foreach($this->links as $link) {
+			if(in_array($link, $this->followed)) continue;
 			$this->url = $link;
 			$promises[] = $client->getAsync($link)->then(function($response) use ($link) {
 				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$link.PHP_EOL;
 				$content = $response->getBody()->getContents();	
-				$this->crawl($content, $link, $this->base);
+				$this->crawl($content, $this->url, $this->base);
 			});
 		}
 		$results = Promise\settle($promises)->wait();
