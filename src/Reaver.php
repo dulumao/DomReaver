@@ -5,11 +5,8 @@ namespace Reaver;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
-/*use GuzzleHttp\Pool;
-use GuzzleHttp\Psr7\Request;*/
 use Symfony\Component\DomCrawler\Crawler;
-/*use Psr\Http\Message\ResponseInterface;
-use GuzzleHttp\Exception\RequestException;*/
+
 
 class Spider {
 
@@ -29,7 +26,8 @@ class Spider {
 		echo '['.Carbon::now().'] Finalizing Crawl...'.PHP_EOL;
 		echo '['.Carbon::now().'] Stats:'.PHP_EOL;
 		echo '------------------------------------------'.PHP_EOL;
-		echo 'links:'.count($this->links) . PHP_EOL;
+		echo 'Found Links:'.count($this->links) . PHP_EOL;
+		echo 'Crawled Pages:'.count($this->followed) . PHP_EOL;
 		$this->site = json_encode($this->site);
         $this->site = indent($this->site);
 	}
