@@ -7,7 +7,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use Symfony\Component\DomCrawler\Crawler;
 
-
 class Spider {
 
 	public $url;
@@ -103,16 +102,11 @@ class Spider {
 		$results = Promise\settle($promises)->wait();
 	}
 
-	public function followExternal()
-	{
-		$this->follow();
-	}
 
 	public function run()
 	{
 		$this->fetch();
 		$this->follow();
-		$this->followExternal();
 	}
 
 }
