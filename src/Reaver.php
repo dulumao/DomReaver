@@ -41,7 +41,7 @@ class Spider {
 
 			$content = $response->getBody()->getContents();	
 
-			$this->crawl($content, $this->url, $this->base);
+			$this->crawl($content, $this->url);
 			$this->followed[] = $this->url;
 		});
 
@@ -56,31 +56,9 @@ class Spider {
 	 * @param  string
 	 * @return array
 	 */
-	public function crawl($html, $url, $base)
+	public function crawl($html, $url)
 	{
 		return $this->crawler = new Crawler($html, $this->url);
-
-		/*
-        $this->site[] = [
-        	'url' => $url,
-        	'base' => $base, 
-        	'title' => $title, 
-        	'description' => $meta, 
-        	'html' => preg_replace('/(\s)+/', ' ', strip_tags($crawler->html()))
-        ];
-
-		$links = $crawler->filterXpath('//a')->each(function(Crawler $node, $i) {
-			$href = url_to_absolute($this->url, $node->attr('href'));
-			if(checkUrl($href) && !checkImage($href) && !is_null($href)) {
-				$href = rtrim($href, '#');
-				$href = rtrim($href, '/');
-				$this->links[] = $href;
-			}
-		});	
-
-		$this->links = is_array($this->links) ? array_unique($this->links) : [$this->links];
-        $this->links = array_filter($this->links);
-        $this->links = array_values($this->links);*/
 	}
 
 	public function title()
@@ -137,7 +115,7 @@ class Spider {
 	public function follow()
 	{
 		if(empty($this->links)) $this->links();
-		
+
 		foreach($this->links as $link) {
 			if(in_array($link, $this->followed)) continue;
 			$this->url = $link;
