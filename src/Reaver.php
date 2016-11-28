@@ -107,7 +107,7 @@ class Spider {
 	 */
 	public function stats()
 	{
-		var_dump($this->followed);
+		var_dump($this->followed, $this->site);
 	}
 
 }
