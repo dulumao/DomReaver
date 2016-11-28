@@ -86,21 +86,19 @@ class Spider {
         $this->links = array_values($this->links);
 	}
 
-	public function follow()
+	public function init()
 	{
-		$client = new Client();
-
+		$this->fetch();
 		foreach($this->links as $link) {
 			if(in_array($link, $this->followed)) continue;
 			$this->url = $link;
 			$this->fetch();
 		}
-
 	}
+
 	public function run()
 	{
-		$this->fetch();
-		$this->follow();
+		$this->init();
 	}
 
 }
