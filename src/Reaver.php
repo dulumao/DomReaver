@@ -97,12 +97,13 @@ class Spider {
 
 	public function store()
 	{
-		$this->site[] = [
+		$this->site[] = (object) [
         	'url' => $this->url,
         	'base' => $this->base, 
         	'title' => $this->title(), 
         	'description' => $this->description(), 
-        	'html' => preg_replace('/(\s)+/', ' ', strip_tags($this->crawler->html()))
+        	'content' => preg_replace('/(\s)+/', ' ', strip_tags($this->crawler->html())), 
+        	'html' => $this->crawler->html()
         ];
         return $this->site;
 	}
