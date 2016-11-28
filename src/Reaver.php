@@ -15,6 +15,7 @@ class Spider {
 	protected $site;
 	protected $followed;
 	protected $robots;
+	protected $crawler;
 
 	/**
 	 * Sets the base or seed url to crawl
@@ -55,13 +56,12 @@ class Spider {
 	 * @param  string
 	 * @return array
 	 */
-	public function crawl($html, $url, $base)
+	public function crawl($html, $url)
 	{
-		$crawler = new Crawler($html, $this->url);
+		return $this->crawler = new Crawler($html, $this->url);
+
 		$title = count($crawler->filterXPath('//title')) != 0 ? $crawler->filterXPath('//title')->text() : $this->url;
-
         $metas = $crawler->filterXPath('//meta[@name="description"]');
-
         $meta = count($metas) !== 0 ? $crawler->filterXPath('//meta[@name="description"]')->attr('content') : '';
         $meta = !empty($meta) ? $meta : substr($crawler->filterXPath('//body')->text(), 0, 200);
 
