@@ -16,6 +16,8 @@ use \Dotenv\Dotenv;
 $dotenv = new Dotenv(__DIR__);
 $dotenv->load();
 
+$argv = $_SERVER['argv'];
+
 /**
  * Create new to spider
  * @var Spider
