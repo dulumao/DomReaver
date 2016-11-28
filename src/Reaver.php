@@ -15,7 +15,7 @@ class Spider {
 	protected $site;
 	protected $followed;
 	protected $robots;
-	protected $crawler;
+	protected $html;
 
 	/**
 	 * Sets the base or seed url to crawl
@@ -48,6 +48,7 @@ class Spider {
 		$promise->wait();
 	}	
 
+
 	/**
 	 * Uses the symfony Dom Crawler library to extract the Title
 	 * description and stripped content of the page.
@@ -56,10 +57,9 @@ class Spider {
 	 * @param  string
 	 * @return array
 	 */
-	public function crawl($html, $url)
+	public function crawl($html, $url, $base)
 	{
-		return $this->crawler = new Crawler($html, $this->url);
-
+		$crawler = new Crawler($html, $this->url);
 		$title = count($crawler->filterXPath('//title')) != 0 ? $crawler->filterXPath('//title')->text() : $this->url;
         $metas = $crawler->filterXPath('//meta[@name="description"]');
         $meta = count($metas) !== 0 ? $crawler->filterXPath('//meta[@name="description"]')->attr('content') : '';
