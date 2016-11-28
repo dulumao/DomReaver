@@ -25,7 +25,9 @@ $crawler = new Spider;
 $crawler->setUrl($argv[1]);
 // Fetch the base url.
 $crawler->fetch();
-// Follow all respective links.
+
+$crawler->title();
+/*// Follow all respective links.
 $crawler->follow();
 // Dump out the stats from the crawl.
-$crawler->stats();
+$crawler->stats();*/
