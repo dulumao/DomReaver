@@ -94,25 +94,14 @@ class Spider {
 		foreach($this->links as $link) {
 			if(in_array($link, $this->followed)) continue;
 			$this->url = $link;
-			$promises[] = $client->getAsync($link)->then(function($response) use ($link) {
-				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$link.PHP_EOL;
-				$content = $response->getBody()->getContents();	
-				$this->crawl($content, $this->url, $this->base);
-			});
+			$this->fetch();
 		}
-		$results = Promise\settle($promises)->wait();
-	}
-
-	public function followExternal()
-	{
-		$this->follow();
 	}
 
 	public function run()
 	{
 		$this->fetch();
 		$this->follow();
-		$this->followExternal();
 	}
 
 }
