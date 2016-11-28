@@ -63,7 +63,7 @@ class Spider {
         $metas = $crawler->filterXPath('//meta[@name="description"]');
 
         $meta = count($metas) !== 0 ? $crawler->filterXPath('//meta[@name="description"]')->attr('content') : '';
-        $meta = !empty($meta) ? $meta : truncate($crawler->filterXPath('//body')->text());
+        $meta = !empty($meta) ? $meta : substr($crawler->filterXPath('//body')->text(), 0, 200);
 
         $this->site[] = [
         	'url' => $url,

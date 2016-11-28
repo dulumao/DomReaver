@@ -1,18 +1,20 @@
 <?php
-function truncate($string, $length=100, $append="&hellip;")
-{
-	$string = trim($string);
-	$string = explode(' ', $string);
-	$string = array_map('trim', $string);
-	$string = implode(' ', $string);
-	if(strlen($string) > $length) {
-		$string = wordwrap($string, $length);
-		$string = explode("\n", $string, 2);
-		$string = $string[0] . $append;
-	}
-	return $string;
-}
 
+/**
+ * This file represents a collection of useful functions that I've found 
+ * on the web.
+ *
+ * I'll be going back over each and providing proper attribution. Please feel free
+ * to submit attribution in the meantime.
+ */
+
+
+/**
+ * Function for properly indenting JSON.
+ * @param  array
+ * @param  boolean
+ * @return array
+ */
 function json($array, $object = false)
 {
     
@@ -40,39 +42,6 @@ function shorturl($url){
     }else{
         return $url;
     }
-}
- 
-
-function strip_html_tags( $text )
-{
-    $text = preg_replace(
-        array(
-          // Remove invisible content
-            '@<head[^>]*?>.*?</head>@siu',
-            '@<style[^>]*?>.*?</style>@siu',
-            '@<script[^>]*?.*?</script>@siu',
-            '@<object[^>]*?.*?</object>@siu',
-            '@<embed[^>]*?.*?</embed>@siu',
-            '@<applet[^>]*?.*?</applet>@siu',
-            '@<noframes[^>]*?.*?</noframes>@siu',
-            '@<noscript[^>]*?.*?</noscript>@siu',
-            '@<noembed[^>]*?.*?</noembed>@siu',
-          // Add line breaks before and after blocks
-            '@</?((address)|(blockquote)|(center)|(del))@iu',
-            '@</?((div)|(h[1-9])|(ins)|(isindex)|(p)|(pre))@iu',
-            '@</?((dir)|(dl)|(dt)|(dd)|(li)|(menu)|(ol)|(ul))@iu',
-            '@</?((table)|(th)|(td)|(caption))@iu',
-            '@</?((form)|(button)|(fieldset)|(legend)|(input))@iu',
-            '@</?((label)|(select)|(optgroup)|(option)|(textarea))@iu',
-            '@</?((frameset)|(frame)|(iframe))@iu',
-        ),
-        array(
-            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-            "\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0",
-            "\n\$0", "\n\$0",
-        ),
-        $text );
-    return strip_tags( $text );
 }
 
 function checkImage($image)
