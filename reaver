@@ -6,15 +6,26 @@ require __DIR__.'/vendor/autoload.php';
 use \Reaver\Spider;
 use \Dotenv\Dotenv;
 
+/**
+ * Loads the environment variables.
+ * This was originally set up to follow more cli like crawlers that implement a 
+ * config file. Currently this isn't being implemented as users can input the
+ * url directly to the cli.
+ * @var Dotenv
+ */
 $dotenv = new Dotenv(__DIR__);
 $dotenv->load();
 
+/**
+ * Create new to spider
+ * @var Spider
+ */
 $crawler = new Spider;
-
+// Set the url through the the cli.
 $crawler->setUrl($argv[1]);
-
+// Fetch the base url.
 $crawler->fetch();
-
+// Follow all respective links.
 $crawler->follow();
-
+// Dump out the stats from the crawl.
 $crawler->stats();

@@ -16,12 +16,20 @@ class Spider {
 	protected $followed;
 	protected $robots;
 
+	/**
+	 * Sets the base or seed url to crawl
+	 * @param string
+	 */
 	public function setUrl($url)
 	{
 		$this->url = $url;
 		$this->base = ['base_uri' => $this->url];
 	}
 
+	/**
+	 * Fetches the base url and sends the contents, url and base
+	 * url to the crawl method
+	 */
 	public function fetch()
 	{
 		$client = new Client($this->base);
@@ -36,9 +44,17 @@ class Spider {
 			$this->followed[] = $this->url;
 		});
 
-		return $promise->wait();
+		$promise->wait();
 	}	
 
+	/**
+	 * Uses the symfony Dom Crawler library to extract the Title
+	 * description and stripped content of the page.
+	 * @param  string
+	 * @param  string
+	 * @param  string
+	 * @return array
+	 */
 	public function crawl($html, $url, $base)
 	{
 		$crawler = new Crawler($html, $this->url);
@@ -71,6 +87,11 @@ class Spider {
         $this->links = array_values($this->links);
 	}
 
+	/**
+	 * Follows links
+	 * TODO: will set up a method for abiding by robots directives
+	 * @return [type]
+	 */
 	public function follow()
 	{
 		foreach($this->links as $link) {
@@ -80,6 +101,10 @@ class Spider {
 		}
 	}
 
+	/**
+	 * TODO: set up crawling stats to echo out on finish.
+	 * @return [type]
+	 */
 	public function stats()
 	{
 		var_dump($this->followed);
