@@ -9,27 +9,12 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class Spider {
 
-	public $url;
-	public $links;
-	public $base;
-	public $site;
-	public $followed;
-
-	public function __construct()
-	{
-		echo '['.Carbon::now().'] Initializing Reaver...'.PHP_EOL;
-	}
-
-	public function __destruct()
-	{
-		echo '['.Carbon::now().'] Finalizing Crawl...'.PHP_EOL;
-		echo '['.Carbon::now().'] Stats:'.PHP_EOL;
-		echo '------------------------------------------'.PHP_EOL;
-		echo 'Found Links:'.count($this->links) . PHP_EOL;
-		echo 'Crawled Pages:'.count($this->followed) . PHP_EOL;
-		$this->site = json_encode($this->site);
-        $this->site = indent($this->site);
-	}
+	protected $url;
+	protected $links;
+	protected $base;
+	protected $site;
+	protected $followed;
+	protected $robots;
 
 	public function setUrl($url)
 	{
@@ -51,7 +36,7 @@ class Spider {
 			$this->followed[] = $this->url;
 		});
 
-		$promise->wait();
+		return $promise->wait();
 	}	
 
 	public function crawl($html, $url, $base)
@@ -86,9 +71,8 @@ class Spider {
         $this->links = array_values($this->links);
 	}
 
-	public function init()
+	public function follow()
 	{
-		$this->fetch();
 		foreach($this->links as $link) {
 			if(in_array($link, $this->followed)) continue;
 			$this->url = $link;
@@ -96,9 +80,9 @@ class Spider {
 		}
 	}
 
-	public function run()
+	public function stats()
 	{
-		$this->init();
+		var_dump($this->followed);
 	}
 
 }

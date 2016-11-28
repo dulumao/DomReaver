@@ -13,4 +13,8 @@ $crawler = new Spider;
 
 $crawler->setUrl($argv[1]);
 
-$crawler->run();
+$crawler->fetch();
+
+$crawler->follow();
+
+$crawler->stats();
