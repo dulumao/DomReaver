@@ -7,7 +7,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use Symfony\Component\DomCrawler\Crawler;
 
-
 class Spider {
 
 	public $url;
@@ -96,8 +95,8 @@ class Spider {
 			$this->url = $link;
 			$this->fetch();
 		}
-	}
 
+	}
 	public function run()
 	{
 		$this->fetch();
