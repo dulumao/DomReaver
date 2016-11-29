@@ -45,6 +45,9 @@ class Spider {
 		});
 
 		$request->wait();
+
+		$robots = $this->base['base_uri'] . '/robots.txt';
+		$this->robots = $client->request('GET', $robots)->getBody()->getContents();
 	}	
 
 	/**
