@@ -101,7 +101,7 @@ class Spider {
 	{
 		$this->site[] = (object) [
         	'url' => $this->url,
-        	'base' => $this->base, 
+        	'base' => $this->base['base_uri'], 
         	'title' => $this->title(), 
         	'description' => $this->description(), 
         	'content' => preg_replace('/(\s)+/', ' ', strip_tags($this->crawler->html())), 
