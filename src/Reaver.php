@@ -4,7 +4,6 @@ namespace Reaver;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Promise;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Spider {
@@ -35,7 +34,7 @@ class Spider {
 	{
 		$client = new Client($this->base);
 
-		$promise = $client->getAsync($this->url)->then(function($response) {
+		$request = $client->getAsync($this->url)->then(function($response) {
 
 			echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$this->url.PHP_EOL;
 
@@ -45,7 +44,7 @@ class Spider {
 			$this->followed[] = $this->url;
 		});
 
-		$promise->wait();
+		$request->wait();
 	}	
 
 	/**
