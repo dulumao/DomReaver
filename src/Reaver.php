@@ -35,17 +35,21 @@ class Spider {
 	{
 		$client = new Client($this->base);
 
-		$promise = $client->getAsync($this->url)->then(function($response) {
+		try {			
+			$promise = $client->getAsync($this->url)->then(function($response) {
 
-			echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$this->url.PHP_EOL;
+				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$this->url.PHP_EOL;
 
-			$content = $response->getBody()->getContents();	
+				$content = $response->getBody()->getContents();	
 
-			$this->crawl($content, $this->url, $this->base);
-			$this->followed[] = $this->url;
-		});
+				$this->crawl($content, $this->url, $this->base);
+				$this->followed[] = $this->url;
+			});
 
-		$promise->wait();
+			$promise->wait();
+		} catch(\GuzzleHttp\Exception\ClientException $e) {
+			echo $e->getMessage();
+		}
 	}	
 
 
