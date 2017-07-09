@@ -23,9 +23,5 @@ $dotenv->load();
 $crawler = new Spider;
 // Set the url through the the cli.
 $crawler->setUrl($argv[1]);
-// Fetch the base url.
-$crawler->fetch();
-// Follow all respective links.
-$crawler->follow();
-// Dump out the stats from the crawl.
-$crawler->stats();
+
+$crawler->init();

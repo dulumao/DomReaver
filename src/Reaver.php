@@ -9,6 +9,9 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class Spider {
 
+	protected $client;
+	protected $promise;
+	protected $promises;
 	protected $url;
 	protected $links;
 	protected $base;
@@ -17,51 +20,52 @@ class Spider {
 	protected $robots;
 	protected $html;
 
-	/**
-	 * Sets the base or seed url to crawl
-	 * @param string
-	 */
-	public function setUrl($url)
+	public function __construct()
 	{
-		$this->url = $url;
-		$this->base = ['base_uri' => $this->url];
+		$this->client = new Client();
 	}
 
-	/**
-	 * Fetches the base url and sends the contents, url and base
-	 * url to the crawl method
-	 */
-	public function fetch()
+	public function __destruct()
 	{
-		$client = new Client($this->base);
+		var_dump($this->site);
+	}
 
-		try {			
-			$promise = $client->getAsync($this->url)->then(function($response) {
+	public function setUrl($url) {
+		$this->links[] = $url;
+		$this->base = ['base_uri' => $url];
+	}
 
-				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$this->url.PHP_EOL;
+	public function init() 
+	{
+		$this->fetch();
+		$this->follow();
+	}
 
+	private function follow()
+	{
+		var_dump($this->links);
+	}
+
+	private function fetch()
+	{
+		foreach ($this->links as $link) {
+		    $this->promises[] = $this->client->requestAsync('GET', $link);
+			echo '['.Carbon::now().'] Sending request for '.$link.PHP_EOL;
+		    $this->url = $link;
+		}
+
+		\GuzzleHttp\Promise\all($this->promises)->then(function (array $responses) {
+		    foreach ($responses as $response) {
+		    	echo '['.Carbon::now().'] Request Received '.PHP_EOL;
+		        echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$this->url.PHP_EOL;
 				$content = $response->getBody()->getContents();	
-
 				$this->crawl($content, $this->url, $this->base);
 				$this->followed[] = $this->url;
-			});
+		    }
+		})->wait();
+	}
 
-			$promise->wait();
-		} catch(\GuzzleHttp\Exception\ClientException $e) {
-			echo $e->getMessage();
-		}
-	}	
-
-
-	/**
-	 * Uses the symfony Dom Crawler library to extract the Title
-	 * description and stripped content of the page.
-	 * @param  string
-	 * @param  string
-	 * @param  string
-	 * @return array
-	 */
-	public function crawl($html, $url, $base)
+	private function crawl($html, $url, $base)
 	{
 		$crawler = new Crawler($html, $this->url);
 		$title = count($crawler->filterXPath('//title')) != 0 ? $crawler->filterXPath('//title')->text() : $this->url;
@@ -90,29 +94,4 @@ class Spider {
         $this->links = array_filter($this->links);
         $this->links = array_values($this->links);
 	}
-
-	/**
-	 * Follows links
-	 * TODO: will set up a method for abiding by robots directives
-	 * @return [type]
-	 */
-	public function follow()
-	{
-		foreach($this->links as $link) {
-			if(in_array($link, $this->followed)) continue;
-			$this->url = $link;
-			$this->fetch();
-		}
-	}
-
-	/**
-	 * TODO: set up crawling stats to echo out on finish.
-	 * @return [type]
-	 */
-	public function stats()
-	{
-		var_dump($this->followed, $this->site);
-	}
-
 }
-
