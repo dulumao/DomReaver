@@ -11,5 +11,5 @@ composer require jmenicucci/dom-reaver
 From the root directory:
 
 ```
-php reaver http://www.example.com
+php reaver --url=http://www.example.com
 ```
