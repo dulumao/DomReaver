@@ -37,8 +37,8 @@ class Spider {
 		
 	}
 
-	public function init() {
-		
+	public function init() 
+	{
 		$this->fetch($this->url);
 	}
 

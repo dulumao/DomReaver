@@ -3,3 +3,4 @@ vendor/
 composer.lock
 index.json
 site/
+crawl.log
