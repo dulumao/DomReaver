@@ -2,30 +2,34 @@
 
 namespace Reaver;
 
+use Reaver\Link;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\DomCrawler\Crawler;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class Spider {
 
 	protected $client;
 	protected $url;
-	protected $links = [];
 	protected $base;
 	protected $args;
 	protected $i;
+	protected $headers;
 
 	public function __construct()
 	{
 		$this->args = $_GET;
-		array_push($this->links, $this->args['--url']);
 		$this->base = ['base_uri' => $this->args['--url']];
 		$this->client = new Client($this->base);
 		$this->url = $this->args['--url'];
 		$this->i = 0;
+		$this->headers = [
+			'User-Agent' => 'Mozilla/5.0 (Windows NT 5.1; rv:23.0) Gecko/20100101 Firefox/23.0'
+		];
 	}
 
 	public function __destruct()
@@ -49,7 +53,9 @@ class Spider {
 	private function fetch($url)
 	{
 		try {
-			$request = new Request('GET', $url);
+			$request = new Request('GET', $url, [
+				'headers' => $this->headers
+			]);
 			$promise = $this->client->sendAsync($request)->then(function($response) use ($request) {
 				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$request->getUri().PHP_EOL;
 				$content = $response->getBody()->getContents();	
@@ -59,29 +65,41 @@ class Spider {
 			
 			$promise->wait();
 		} catch(\GuzzleHttp\Exception\ClientException $e) {
-			var_dump($e->getMessage());
+			//
 		}
 	}
 
 	private function follow()
 	{
-		$this->fetch($this->links[$this->i++]);
+		$this->links = Link::where('read', 0)->limit(10)->get();
+		//$this->fetch($this->links[$this->i++]);
+		foreach ($this->links as $link) {
+			$link->read = 1;
+			$link->save();
+			$this->fetch($link->url);
+		}
 	}
 
 	private function crawl($html, $url, $base)
 	{
 		$crawler = new Crawler($html, $this->url);
 		$links = $crawler->filterXpath('//a')->each(function(Crawler $node, $i) {
-			$href = url_to_absolute($this->url, $node->attr('href'));
-			if(checkUrl($href) && !checkImage($href) && !is_null($href)) {
+			$href = $node->link()->getUri();
+			if(checkUrl($href) && !checkImage($href)) {
 				$href = rtrim($href, '#');
 				$href = rtrim($href, '/');
-				$this->links[] = $href;
+				$link = new Link;
+				$link->url = $href;
+				$link->expires = Carbon::now()->addDays(30);
+				try {
+					$link->save();
+				} catch (\PDOException $e) {
+					/*file_put_contents('crawl.log', '['.Carbon::now().'] ('.$e->getCode().') >> '
+						.PHP_EOL, FILE_APPEND);*/
+				}
 			}
 		});	
-		$this->links = is_array($this->links) ? array_unique($this->links) : [$this->links];
-        $this->links = array_filter($this->links);
-        $this->links = array_values($this->links);
+
         if($this->hasArg('-f')) {
         	$this->follow();
         }

@@ -5,9 +5,29 @@ require __DIR__.'/vendor/autoload.php';
 
 use \Reaver\Spider;
 use \Dotenv\Dotenv;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 parse_str(implode('&', array_slice($argv, 1)), $_GET);
 
+$capsule = new Capsule;
+
+$capsule->addConnection([
+    'driver'    => 'mysql',
+    'host'      => '127.0.0.1',
+    'database'  => 'reaver',
+    'username'  => 'homestead',
+    'password'  => 'secret',
+    'charset'   => 'utf8',
+    'collation' => 'utf8_unicode_ci',
+    'prefix'    => '',
+    'port'      => '33060'
+]);
+
+// Make this Capsule instance available globally via static methods
+$capsule->setAsGlobal();
+
+// Setup the Eloquent ORM
+$capsule->bootEloquent();
 /**
  * Loads the environment variables.
  * This was originally set up to follow more cli like crawlers that implement a 
