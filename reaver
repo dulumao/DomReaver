@@ -6,6 +6,8 @@ require __DIR__.'/vendor/autoload.php';
 use \Reaver\Spider;
 use \Dotenv\Dotenv;
 
+parse_str(implode('&', array_slice($argv, 1)), $_GET);
+
 /**
  * Loads the environment variables.
  * This was originally set up to follow more cli like crawlers that implement a 
@@ -22,6 +24,4 @@ $dotenv->load();
  */
 $crawler = new Spider;
 // Set the url through the the cli.
-$crawler->setUrl($argv[1]);
-
 $crawler->init();

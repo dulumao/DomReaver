@@ -5,6 +5,7 @@ namespace Reaver;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
+use GuzzleHttp\Psr7\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Spider {
@@ -27,42 +28,31 @@ class Spider {
 
 	public function __destruct()
 	{
-		var_dump($this->site);
+		
 	}
 
-	public function setUrl($url) {
-		$this->links[] = $url;
-		$this->base = ['base_uri' => $url];
-	}
-
-	public function init() 
-	{
-		$this->fetch();
-		$this->follow();
+	public function init() {
+		//$this->links[] = $url;
+		//$this->base = ['base_uri' => $url];
+		var_dump($_GET);
 	}
 
 	private function follow()
 	{
-		var_dump($this->links);
+		$this->fetch();
 	}
 
 	private function fetch()
 	{
-		foreach ($this->links as $link) {
-		    $this->promises[] = $this->client->requestAsync('GET', $link);
-			echo '['.Carbon::now().'] Sending request for '.$link.PHP_EOL;
-		    $this->url = $link;
+		foreach($this->links as $link) {
+			$request = new Request('GET', $link);
+			$promise = $this->client->sendAsync($request)->then(function($response) use ($link) {
+				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$link.PHP_EOL;
+				//$content = $response->getBody()->getContents();	
+				//var_dump($content);
+			});
 		}
-
-		\GuzzleHttp\Promise\all($this->promises)->then(function (array $responses) {
-		    foreach ($responses as $response) {
-		    	echo '['.Carbon::now().'] Request Received '.PHP_EOL;
-		        echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$this->url.PHP_EOL;
-				$content = $response->getBody()->getContents();	
-				$this->crawl($content, $this->url, $this->base);
-				$this->followed[] = $this->url;
-		    }
-		})->wait();
+		$promise->wait();
 	}
 
 	private function crawl($html, $url, $base)
