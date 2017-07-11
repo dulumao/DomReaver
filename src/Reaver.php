@@ -57,7 +57,7 @@ class Spider {
 				'headers' => $this->headers
 			]);
 			$promise = $this->client->sendAsync($request)->then(function($response) use ($request) {
-				echo '['.Carbon::now().'] ('.$response->getStatusCode().') >> '.$request->getUri().PHP_EOL;
+				echo '('.$response->getStatusCode().') >> '.$request->getUri().PHP_EOL;
 				$content = $response->getBody()->getContents();	
 				$this->crawl($content, $request->getUri(), $this->base);
 				$this->followed[] = $request->getUri();
@@ -99,6 +99,34 @@ class Spider {
 				}
 			}
 		});	
+
+		if($this->hasArg('-i')) {
+			$path = 'downloads/images/';
+			if(!file_exists($path)) {
+				mkdir($path, 0777, true);
+				chmod($path, 0777);
+			}
+			$images = $crawler->filterXpath('//img')->each(function(Crawler $node, $i) use ($path) {
+				$imageLoc = $node->attr('src');
+				$imageAlt = $node->attr('alt');
+				$imageLoc = preg_replace('/\\?.*/', '', $imageLoc);
+				if(!checkUrl($imageLoc)) {
+					$imageLoc = rtrim($this->base['base_uri'], '/') . '/' . ltrim($imageLoc, '/');
+				}
+
+				if(checkImage($imageLoc)) {
+					try {
+						$resource = fopen($path.basename($imageLoc), 'w');
+						$stream = \GuzzleHttp\Psr7\stream_for($resource);
+						$this->client->request('GET', $imageLoc, [
+							'sink' => $stream
+						]);
+					} catch(\RuntimeException $e) {
+						//
+					}
+				}
+			});
+		}
 
         if($this->hasArg('-f')) {
         	$this->follow();
